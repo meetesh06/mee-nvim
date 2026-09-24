@@ -1,10 +1,18 @@
 # Ghostty config to pair with the deepblue Neovim theme.
-#
-# Install (on the machine running ghostty):
-#   macOS: ~/Library/Application Support/com.mitchellh.ghostty/config  (or ~/.config/ghostty/config)
-#   Linux: ~/.config/ghostty/config
-# plus the theme file extras/ghostty/deepblue -> <that dir>/themes/deepblue
+# Install with ./setup_ghostty.sh (copies this and the deepblue theme into place).
 # Reload with ctrl+shift+, (cmd+shift+, on macOS).
+
+clipboard-read = allow
+
+keybind = cmd+h=goto_split:left
+keybind = cmd+l=goto_split:right
+keybind = cmd+k=goto_split:up
+keybind = cmd+j=goto_split:down
+
+keybind = cmd+shift+h=resize_split:left,10
+keybind = cmd+shift+l=resize_split:right,10
+keybind = cmd+shift+k=resize_split:up,10
+keybind = cmd+shift+j=resize_split:down,10
 
 theme = deepblue
 
