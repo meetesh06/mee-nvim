@@ -99,6 +99,7 @@ fzf.register_ui_select()
 -- Split keys match fzf-lua: <C-v> vertical, <C-s> horizontal, <C-t> tab.
 
 require("oil").setup({
+  watch_for_changes = true,
   view_options = { show_hidden = true },
   float = { max_width = 0.6, max_height = 0.7 },
   keymaps = {
