@@ -1,7 +1,10 @@
 -- Set leader key before anything else
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
--- vim.g.clipboard = "osc52"
+-- Over SSH there's no X/Wayland clipboard; send yanks to the local terminal via OSC 52.
+if vim.env.SSH_TTY and not (vim.env.DISPLAY or vim.env.WAYLAND_DISPLAY) then
+  vim.g.clipboard = "osc52"
+end
 
 require("core.options")
 require("core.plugins") -- vim.pack: install + configure plugins
