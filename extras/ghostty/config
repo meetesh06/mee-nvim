@@ -2,7 +2,6 @@
 # Install with ./setup_ghostty.sh (copies this and the deepblue theme into place).
 # Reload with ctrl+shift+, (cmd+shift+, on macOS).
 
-window-decoration = false
 shell-integration-features = ssh-env,ssh-terminfo
 
 clipboard-read = allow

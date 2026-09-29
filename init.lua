@@ -1,15 +1,11 @@
 -- Set leader key before anything else
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
--- Over SSH there's no X/Wayland clipboard; send yanks to the local terminal via OSC 52.
-if vim.env.SSH_TTY and not (vim.env.DISPLAY or vim.env.WAYLAND_DISPLAY) then
-  vim.g.clipboard = "osc52"
-end
 
 require("core.options")
-require("core.plugins") -- vim.pack: install + configure plugins
+require("core.plugins") 
 require("core.lsp")
-require("core.keymaps") -- every keymap lives here; <leader>? or <leader>fk to browse them
+require("core.keymaps")
 require("core.statusline")
 
 -- deepblue = darkblue with readable diffs/UI. Edit theme/deepblue.lua and run
