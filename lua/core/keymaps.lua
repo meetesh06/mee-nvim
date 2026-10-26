@@ -227,3 +227,11 @@ vim.api.nvim_create_user_command("GitCommit", function()
 end, { desc = "Commit staged changes" })
 
 -- <leader>q (guarded quit) is defined in lua/core/quit.lua
+
+map("n", "ZD", function()
+  if vim.v.servername:match("^/tmp/nvim%-.+%.sock$") then
+    vim.cmd.detach()
+  else
+    vim.notify("Not an nvconn session. Use :q to quit.", vim.log.levels.WARN)
+  end
+end, { desc = "Detach UI (nvconn sessions only)" })
