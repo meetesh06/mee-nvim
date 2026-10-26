@@ -31,6 +31,7 @@ vim.pack.add({
   gh("sindrets/diffview.nvim"),
   gh("kylechui/nvim-surround"),
   gh("folke/which-key.nvim"),
+  gh("OXY2DEV/markview.nvim"),
 }, { confirm = false })
 
 -- Treesitter -----------------------------------------------------------------
@@ -39,7 +40,7 @@ vim.pack.add({
 
 local parsers = {
   "c", "cpp", "javascript", "typescript", "tsx", "json",
-  "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "bash",
+  "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "bash", "scala"
 }
 local ts = require("nvim-treesitter")
 local missing = vim.tbl_filter(function(lang)
@@ -183,3 +184,11 @@ require("nvim-surround").setup({}) -- ys{motion}{char}, ds{char}, cs{old}{new}
 -- Pops up after <leader>, [, ], g, z, etc. Group names are set in keymaps.lua.
 
 require("which-key").setup({ preset = "helix" })
+
+-- Markdown preview (markview) ------------------------------------------------
+-- Renders headings, tables, code blocks, checkboxes etc. in the buffer itself.
+-- Off when a file opens; <leader>um toggles it, <leader>uM opens a side split.
+
+require("markview").setup({
+  preview = { enable = false, icon_provider = "devicons" },
+})

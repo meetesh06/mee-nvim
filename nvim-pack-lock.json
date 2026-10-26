@@ -25,6 +25,10 @@
       "rev": "070a5d7b985546cc57e1fc61e5bc507fecac6045",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
+    "markview.nvim": {
+      "rev": "ecc5a8867daa1856f8bcc5fdbceca8f5a5ce5f5d",
+      "src": "https://github.com/OXY2DEV/markview.nvim"
+    },
     "nvim-surround": {
       "rev": "8b47db616ef658b8fc27e61db2896aa2f40134de",
       "src": "https://github.com/kylechui/nvim-surround"

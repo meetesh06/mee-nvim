@@ -154,6 +154,8 @@ map("n", "<leader>uf", function()
 end, { desc = "Toggle format on save" })
 map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "Toggle line wrap" })
 map("n", "<leader>us", "<cmd>set spell!<cr>", { desc = "Toggle spell check" })
+map("n", "<leader>um", "<cmd>Markview toggle<cr>", { desc = "Toggle markdown preview" })
+map("n", "<leader>uM", "<cmd>Markview splitToggle<cr>", { desc = "Toggle markdown preview (split)" })
 
 -- Git hunks (gitsigns) -------------------------------------------------------
 local gs = function(fn, ...)
