@@ -100,6 +100,23 @@ map("n", "<Esc>", "<cmd>nohlsearch<cr><Esc>", { desc = "Clear search highlight" 
 -- Terminal -------------------------------------------------------------------
 map("n", "<leader>t", function() require("core.terminal").toggle() end, { desc = "Toggle floating terminal" })
 map("t", "<Esc>", [[<C-\><C-n>]], { desc = "Escape terminal mode" })
+map("n", "<leader>T", "<cmd>tab terminal<cr><cmd>startinsert<cr>", { desc = "Terminal in a new tab" })
+
+-- Tabs -------------------------------------------------------------------------
+-- Alt-1..9 jump to that tab (past the end = last tab), Alt-h/l previous/next.
+-- Normal mode only: fzf-lua's picker runs in a terminal and uses <A-h> itself.
+-- Built-ins still work: gt/gT, g<Tab> last-used tab, <C-w>T split -> tab.
+for i = 1, 9 do
+  map("n", "<A-" .. i .. ">", function()
+    vim.cmd.tabnext(math.min(i, vim.fn.tabpagenr("$")))
+  end, { desc = "Go to tab " .. i })
+end
+map("n", "<A-h>", "<cmd>tabprevious<cr>", { desc = "Previous tab" })
+map("n", "<A-l>", "<cmd>tabnext<cr>", { desc = "Next tab" })
+map("n", "<A-H>", "<cmd>-tabmove<cr>", { desc = "Move tab left" })
+map("n", "<A-L>", "<cmd>+tabmove<cr>", { desc = "Move tab right" })
+map("n", "<A-n>", "<cmd>tabnew<cr>", { desc = "New tab" })
+map("n", "<A-w>", "<cmd>tabclose<cr>", { desc = "Close tab" })
 
 -- Diagnostics ----------------------------------------------------------------
 local jump = function(count, severity)

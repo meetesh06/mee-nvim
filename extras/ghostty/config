@@ -49,3 +49,7 @@ font-feature = ss06
 font-feature = ss07
 font-feature = ss08
 font-feature = ss09
+
+# macOS: left Option acts as Alt (Neovim tab keys: Alt-1..9, Alt-h/l, ...).
+# Right Option still types special characters. Ignored on Linux.
+macos-option-as-alt = left
