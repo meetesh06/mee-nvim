@@ -2,6 +2,7 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+require("osc52cache")
 require("core.options")
 require("core.plugins") 
 require("core.lsp")
