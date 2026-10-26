@@ -156,6 +156,15 @@ map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "Toggle line wrap" })
 map("n", "<leader>us", "<cmd>set spell!<cr>", { desc = "Toggle spell check" })
 map("n", "<leader>um", "<cmd>Markview toggle<cr>", { desc = "Toggle markdown preview" })
 map("n", "<leader>uM", "<cmd>Markview splitToggle<cr>", { desc = "Toggle markdown preview (split)" })
+map("n", "<leader>uu", "<cmd>Undotree<cr>", { desc = "Toggle undo tree" })
+
+-- Jump (flash) ----------------------------------------------------------------
+-- No visual-mode S: nvim-surround uses it to surround the selection.
+local flash = function(fn) return function() require("flash")[fn]() end end
+map({ "n", "x", "o" }, "s", flash("jump"), { desc = "Flash jump" })
+map({ "n", "o" }, "S", flash("treesitter"), { desc = "Flash select syntax node" })
+map("o", "r", flash("remote"), { desc = "Flash remote (act elsewhere, stay here)" })
+map("c", "<C-s>", function() require("flash").toggle() end, { desc = "Toggle flash labels in / search" })
 
 -- Git hunks (gitsigns) -------------------------------------------------------
 local gs = function(fn, ...)

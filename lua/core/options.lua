@@ -22,6 +22,9 @@ opt.ttimeoutlen = 10       -- Esc takes effect after 10ms (default 50)
 opt.winborder = "rounded"  -- Borders on hover/diagnostic/signature floats
 opt.matchpairs:append("<:>")
 opt.fillchars:append({ diff = "╱" }) -- filler rows in side-by-side diffs
+opt.inccommand = "split"   -- Live preview of :s/old/new, with a split listing every match
+opt.smoothscroll = true    -- Scroll wrapped lines by screen line, not whole lines
+opt.jumpoptions = "stack,view" -- <C-o>/<C-i> behave like browser back/forward and restore the view
 
 -- Never lose unsaved work on an accidental :q / :qa. Instead of failing with
 -- "E37: No write since last change", prompt: Save changes? [Y]es/[N]o/[C]ancel.

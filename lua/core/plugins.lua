@@ -32,6 +32,7 @@ vim.pack.add({
   gh("kylechui/nvim-surround"),
   gh("folke/which-key.nvim"),
   gh("OXY2DEV/markview.nvim"),
+  gh("folke/flash.nvim"),
 }, { confirm = false })
 
 -- Treesitter -----------------------------------------------------------------
@@ -192,3 +193,13 @@ require("which-key").setup({ preset = "helix" })
 require("markview").setup({
   preview = { enable = false, icon_provider = "devicons" },
 })
+
+-- Jumping (flash) ------------------------------------------------------------
+-- s + a few chars of where you want to go, then the label shown there. Also
+-- powers f/F/t/T (labels after the first press; repeat with ; and ,).
+-- Keymaps in keymaps.lua.
+
+require("flash").setup({})
+
+-- Undo tree: built into Neovim, just not loaded by default. <leader>uu opens it.
+vim.cmd.packadd("nvim.undotree")

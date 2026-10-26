@@ -75,6 +75,9 @@ local hl = {
   ColorColumn = { bg = c.bg_hl },
   CursorLineNr = { fg = c.yellow, bold = true },
   LineNr = { fg = c.fg_gutter },
+  -- Gutter while the buffer has unsaved changes (lua/core/statusline.lua)
+  ModifiedLineNr = { fg = "#9a6420" }, -- dimmed orange
+  ModifiedCursorLineNr = { fg = c.orange, bold = true },
   SignColumn = { fg = c.fg_gutter },
   FoldColumn = { fg = c.fg_gutter },
   Folded = { fg = c.fg_dim, bg = c.bg_dark, italic = true },
@@ -94,7 +97,7 @@ local hl = {
   Title = { fg = c.magenta, bold = true },
   WinSeparator = { fg = c.border },
   VertSplit = { link = "WinSeparator" },
-  StatusLine = { fg = c.fg, bg = c.bg_popup },
+  StatusLine = { fg = c.fg, bg = c.bg }, -- same navy as the editor: no separate strip
   StatusLineNC = { fg = c.fg_dim, bg = c.bg_dark },
   TabLine = { fg = c.fg_dim, bg = c.bg_dark },
   TabLineFill = { bg = c.bg_dark },
@@ -210,11 +213,26 @@ local hl = {
   BlinkCmpDocBorder = { link = "FloatBorder" },
 
   -- statusline pieces (lua/core/statusline.lua)
-  StlProject = { fg = c.bg, bg = c.statement, bold = true },
-  StlBranch = { fg = c.magenta, bg = c.bg_popup },
-  StlMuted = { fg = c.fg_dim, bg = c.bg_popup },
-  StlLspOk = { fg = c.green, bg = c.bg_popup },
-  StlLspBusy = { fg = c.yellow, bg = c.bg_popup },
+  -- Plain coloured text on the editor background; the mode colour also tints
+  -- the accent bar on the far left.
+  StlModeNormal = { fg = c.cyan, bg = c.bg, bold = true },
+  StlModeInsert = { fg = c.green, bg = c.bg, bold = true },
+  StlModeVisual = { fg = c.magenta, bg = c.bg, bold = true },
+  StlModeReplace = { fg = c.red, bg = c.bg, bold = true },
+  StlModeCommand = { fg = c.yellow, bg = c.bg, bold = true },
+  StlModeTerminal = { fg = c.orange, bg = c.bg, bold = true },
+  StlProject = { fg = c.statement, bg = c.bg, bold = true },
+  StlBranch = { fg = c.magenta, bg = c.bg },
+  StlAdd = { fg = c.green, bg = c.bg },
+  StlChange = { fg = c.yellow, bg = c.bg },
+  StlDelete = { fg = c.red, bg = c.bg },
+  StlDir = { fg = c.fg_dim, bg = c.bg },
+  StlFile = { fg = c.fg_bright, bg = c.bg, bold = true },
+  StlModified = { fg = c.orange, bg = c.bg, bold = true },
+  StlRecording = { fg = c.red, bg = c.bg, bold = true },
+  StlMuted = { fg = c.fg_dim, bg = c.bg },
+  StlLspOk = { fg = c.green, bg = c.bg },
+  StlLspBusy = { fg = c.yellow, bg = c.bg },
 
   -- floating terminal border (lua/core/terminal.lua)
   TermBorderActive = { fg = c.green, bg = c.bg_dark, bold = true },

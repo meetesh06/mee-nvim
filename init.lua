@@ -16,3 +16,5 @@ vim.cmd.colorscheme("deepblue")
 -- Ask before quitting with unsaved changes. Replaces the old VimLeavePre
 -- buffer-count warning, which could never actually stop an exit.
 require("core.quit")
+require("core.session")
+require("core.splash")
