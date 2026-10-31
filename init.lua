@@ -18,3 +18,13 @@ vim.cmd.colorscheme("deepblue")
 require("core.quit")
 require("core.session")
 require("core.splash")
+
+vim.filetype.add({
+  extension = {
+    iripp = "iripp"
+  },
+  -- Forge pretty-printer dumps: out.iri/AFTER_*_PASSES.pp.iri
+  pattern = {
+    [".*%.pp%.iri"] = "iripp"
+  }
+})
