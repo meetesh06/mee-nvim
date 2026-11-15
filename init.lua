@@ -10,7 +10,8 @@ require("core.keymaps")
 require("core.statusline")
 
 -- deepblue = darkblue with readable diffs/UI. Edit theme/deepblue.lua and run
--- `nvim -l scripts/gen-theme.lua` to regenerate it (plus the ghostty theme).
+-- `nvim -l scripts/gen-theme.lua --install` to regenerate it (plus the ghostty and
+-- opencode themes).
 vim.cmd.colorscheme("deepblue")
 
 -- Ask before quitting with unsaved changes. Replaces the old VimLeavePre

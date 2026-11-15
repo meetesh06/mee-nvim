@@ -1,11 +1,13 @@
 -- deepblue: Neovim's classic `darkblue`, reworked for readability.
 --
--- Single source of truth for the editor AND terminal colours. Edit this file,
--- then regenerate both outputs:
+-- Single source of truth for the editor, terminal AND opencode colours. Edit this
+-- file, then regenerate all outputs:
 --
 --   nvim -l scripts/gen-theme.lua            -> colors/deepblue.lua + extras/ghostty/deepblue
+--                                               + extras/opencode/deepblue.json
 --   nvim -l scripts/gen-theme.lua --install  -> also copies the ghostty theme into
---                                               ~/.config/ghostty/themes/
+--                                               ~/.config/ghostty/themes/ and the opencode
+--                                               theme into ~/.config/opencode/themes/
 --
 -- What changed from darkblue: the syntax colours are the same, but the "chrome"
 -- is toned down. Diffs use dark tinted backgrounds (instead of white text on
@@ -58,6 +60,223 @@ local c = {
 local ansi = {
   "#000020", "#ff6b6b", "#90f020", "#ffa500", "#5f87ff", "#ff80ff", "#5fd7d7", "#c0c0c0",
   "#4a5a8a", "#ffa0a0", "#b0ff60", "#ffff60", "#80a0ff", "#ffb0ff", "#90fff0", "#ffffff",
+}
+
+-- opencode theme (https://opencode.ai/v2/docs/cli/theme).
+--
+-- opencode splits colours into a shared token tree (`tokens`, written as `base`)
+-- and per-mode 9-step hue scales (`hues`, written as `dark.hue`) that the tokens
+-- reference as "$hue.<hue>.<step>". Dark scales run light -> dark from 100 to 900.
+-- Only dark is provided: deepblue is a navy theme, and opencode falls back to the
+-- only mode a theme ships, so a light terminal still gets these colours.
+local opencode = {
+  -- Surfaces, in the navy family (bg, raised panels, hover, selection).
+  gray = {
+    ["100"] = "#ffffff", -- fg_bright
+    ["200"] = "#c0c0c0", -- fg
+    ["300"] = "#9098c0",
+    ["400"] = "#8088b0", -- fg_dim
+    ["500"] = "#4a5a8a", -- fg_gutter
+    ["600"] = "#10106a",
+    ["700"] = "#0a0a5c", -- bg_hl
+    ["800"] = "#000040", -- bg
+    ["900"] = "#00002a", -- bg_dark
+  },
+  red = {
+    ["100"] = "#ffd0d0", ["200"] = c.red, ["300"] = "#e85c5c", ["400"] = "#c44a4a",
+    ["500"] = "#a03a3a", ["600"] = "#7d2b2b", ["700"] = "#5c1e1e", ["800"] = "#3d1313",
+    ["900"] = "#220a0a",
+  },
+  orange = {
+    ["100"] = "#ffe0b0", ["200"] = c.orange, ["300"] = "#e8951f", ["400"] = "#c47c1a",
+    ["500"] = "#a06415", ["600"] = "#7d4d10", ["700"] = "#5a370c", ["800"] = "#3a2308",
+    ["900"] = "#1f1304",
+  },
+  yellow = {
+    ["100"] = "#ffffb0", ["200"] = c.yellow, ["300"] = "#e6e657", ["400"] = "#c2c24a",
+    ["500"] = "#9e9e3d", ["600"] = "#7a7a30", ["700"] = "#585823", ["800"] = "#383816",
+    ["900"] = "#1d1d0b",
+  },
+  green = {
+    ["100"] = "#b0ff60", ["200"] = c.green, ["300"] = "#7cd21c", ["400"] = "#66ac17",
+    ["500"] = "#508712", ["600"] = "#3b630d", ["700"] = "#294309", ["800"] = "#182805",
+    ["900"] = "#0c1402",
+  },
+  cyan = {
+    ["100"] = c.identifier, ["200"] = c.cyan, ["300"] = "#52bcbc", ["400"] = "#449a9a",
+    ["500"] = "#367a7a", ["600"] = "#295c5c", ["700"] = "#1d4242", ["800"] = "#122a2a",
+    ["900"] = "#091616",
+  },
+  blue = {
+    ["100"] = "#a8c0ff", ["200"] = c.blue, ["300"] = "#6f8de0", ["400"] = "#5c77c0",
+    ["500"] = "#4960a0", ["600"] = "#374a80", ["700"] = "#273660", ["800"] = "#182340",
+    ["900"] = "#0c1220",
+  },
+  purple = {
+    ["100"] = "#ffb0ff", ["200"] = c.magenta, ["300"] = "#e071e0", ["400"] = "#c061c0",
+    ["500"] = "#a051a0", ["600"] = "#804180", ["700"] = "#603160", ["800"] = "#402040",
+    ["900"] = "#241224",
+  },
+  -- Aliases: accent drives titles/headings/keywords (magenta, like nvim's Title),
+  -- interactive drives links and functions (identifier cyan), neutral the surfaces.
+  accent = "$hue.purple",
+  interactive = "$hue.cyan",
+  neutral = "$hue.gray",
+}
+
+-- The shared token tree. `$hue.x.n` / `$token.path` references are resolved by
+-- opencode, so the tokens below follow the scales above.
+local opencode_tokens = {
+  categorical = { "blue", "purple", "green", "orange", "red" },
+
+  text = {
+    base = "$hue.neutral.200",
+    muted = "$hue.neutral.400",
+    faint = "$hue.neutral.300",
+    action = {
+      primary = {
+        base = "$hue.interactive.200",
+        ["$hovered"] = "$hue.interactive.100",
+        -- nvim's PmenuSel/WildMenu: bright white on the selection blue.
+        ["$focused"] = c.fg_bright,
+        ["$selected"] = "$hue.interactive.100",
+        ["$disabled"] = "$hue.neutral.400",
+      },
+      secondary = { base = "$hue.neutral.400", ["$hovered"] = "$hue.neutral.200" },
+      destructive = { base = c.red, ["$disabled"] = "$hue.neutral.400" },
+    },
+    formfield = {
+      base = "$hue.neutral.200",
+      ["$hovered"] = "$hue.interactive.100",
+      ["$focused"] = c.yellow,
+      ["$pressed"] = "$hue.interactive.100",
+      ["$selected"] = "$hue.interactive.100",
+      ["$disabled"] = "$hue.neutral.400",
+    },
+    feedback = {
+      error = { base = c.red },
+      warning = { base = c.orange },
+      success = { base = c.green },
+      info = { base = c.cyan },
+    },
+  },
+
+  background = {
+    base = "$hue.neutral.800", -- #000040: same navy as the editor
+    raised = {
+      base = "$hue.neutral.700", -- sidebars, panels
+      high = "$hue.neutral.600", -- hover
+      max = "$hue.neutral.500", -- the most prominent fill
+    },
+    action = {
+      primary = {
+        base = "transparent",
+        ["$hovered"] = "$hue.neutral.600",
+        ["$focused"] = c.bg_popup_sel,
+        ["$selected"] = "transparent",
+      },
+      secondary = { base = "transparent", ["$hovered"] = "$hue.neutral.700" },
+      destructive = { base = c.red },
+    },
+    formfield = {
+      base = "$hue.neutral.700",
+      ["$hovered"] = "$hue.neutral.600",
+      ["$focused"] = "$hue.neutral.600",
+      ["$pressed"] = "$hue.neutral.600",
+      ["$selected"] = "$hue.neutral.600",
+      ["$disabled"] = "$hue.neutral.700",
+    },
+    feedback = {
+      error = { base = "#2a0a30" }, -- nvim's DiagnosticVirtualTextError bg
+      warning = { base = "#2a1a30" },
+      success = { base = c.diff_add },
+      info = { base = "#051a48" },
+    },
+  },
+
+  border = { base = c.border, ["$focused"] = c.blue },
+  scrollbar = { base = c.fg_gutter, ["$hovered"] = c.blue },
+
+  -- Diff colours mirror the nvim groups: tinted backgrounds, brighter fills for
+  -- the exact changed characters (diff_text).
+  diff = {
+    text = { added = c.green, removed = c.red, context = "$hue.neutral.400", hunkHeader = c.blue },
+    background = {
+      added = c.diff_add,
+      removed = c.diff_delete,
+      context = "$hue.neutral.700",
+    },
+    -- highlight is the emphasised text on a changed character (the default theme
+    -- uses light green / pink), so it takes the bright ANSI green and red
+    -- (ansi is 1-based: ansi[1] is palette 0).
+    highlight = { added = ansi[11], removed = ansi[10] },
+    lineNumber = {
+      text = c.fg_gutter,
+      background = { added = "#0b3f28", removed = "#6b1232" },
+    },
+  },
+
+  -- Straight from the nvim syntax groups.
+  syntax = {
+    comment = c.comment,
+    keyword = c.statement,
+    -- `function` is a Lua keyword, so this key needs brackets.
+    ["function"] = c.identifier,
+    variable = c.fg,
+    string = c.constant,
+    number = c.constant,
+    type = c.type,
+    operator = c.fg,
+    punctuation = c.fg,
+  },
+
+  markdown = {
+    text = c.fg,
+    heading = c.magenta, -- nvim's Title
+    link = "#5f87ff",
+    linkText = c.cyan,
+    code = c.type,
+    blockQuote = c.statement,
+    emphasis = c.preproc,
+    strong = c.yellow,
+    horizontalRule = c.border,
+    listItem = c.cyan,
+    listEnumeration = c.blue,
+    image = c.magenta,
+    imageText = c.directory,
+    codeBlock = c.fg,
+  },
+
+  -- Dialogs, menus, toasts: the popup navy and selection blue of Pmenu/PmenuSel.
+  ["@dialog"] = {
+    background = {
+      base = "#0b1660",
+      raised = { base = "#10207a", high = c.bg_popup_sel, max = c.bg_popup_sel },
+      action = {
+        primary = {
+          ["$hovered"] = "#1a2c92",
+          ["$focused"] = c.bg_popup_sel,
+          ["$selected"] = c.bg_popup_sel,
+        },
+        secondary = { ["$hovered"] = "#10207a" },
+      },
+    },
+    text = {
+      base = c.fg,
+      muted = c.fg_dim,
+      action = {
+        primary = {
+          base = c.fg,
+          ["$hovered"] = c.fg_bright,
+          ["$focused"] = c.fg_bright,
+          ["$selected"] = c.fg_bright,
+        },
+        secondary = { base = c.fg_dim, ["$hovered"] = c.fg },
+      },
+    },
+    border = { base = c.border },
+    scrollbar = { base = c.border },
+  },
 }
 
 -- Highlight groups. Keys are group names, values are nvim_set_hl() specs.
@@ -245,6 +464,7 @@ return {
   colors = c,
   ansi = ansi,
   hl = hl,
+  opencode = { hues = opencode, tokens = opencode_tokens },
   terminal = {
     background = c.bg,
     foreground = c.fg,

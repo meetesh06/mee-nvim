@@ -1,14 +1,18 @@
--- Generate the Neovim colorscheme and the ghostty theme from one source file.
+-- Generate the Neovim colorscheme, the ghostty theme and the opencode theme from
+-- one source file.
 --
 --   nvim -l scripts/gen-theme.lua [theme] [--install]
 --
 -- theme      name of a file in theme/ (default: deepblue)
--- --install  also copy the ghostty theme into ~/.config/ghostty/themes/, then
---            enable it with `theme = <name>` in your ghostty config.
+-- --install  also copy the ghostty theme into ~/.config/ghostty/themes/ and the
+--            opencode theme into ~/.config/opencode/themes/, then enable them
+--            with `theme = <name>` in the ghostty config and
+--            `"theme": { "name": "<name>" }` in ~/.config/opencode/cli.json.
 --
--- Outputs (both are generated, edit theme/<name>.lua instead):
---   colors/<name>.lua          :colorscheme <name>
---   extras/ghostty/<name>      ghostty theme
+-- Outputs (all generated, edit theme/<name>.lua instead):
+--   colors/<name>.lua           :colorscheme <name>
+--   extras/ghostty/<name>       ghostty theme
+--   extras/opencode/<name>.json opencode theme
 
 local root = vim.fs.dirname(vim.fs.dirname(vim.fs.normalize(vim.fn.fnamemodify(arg[0], ":p"))))
 
@@ -69,8 +73,112 @@ vim.list_extend(ghostty, {
 local ghostty_text = table.concat(ghostty, "\n") .. "\n"
 write(root .. "/extras/ghostty/" .. name, ghostty_text)
 
+local config_dir = (vim.env.XDG_CONFIG_HOME or (vim.env.HOME .. "/.config"))
+
 if install then
-  local dir = (vim.env.XDG_CONFIG_HOME or (vim.env.HOME .. "/.config")) .. "/ghostty/themes"
+  local dir = config_dir .. "/ghostty/themes"
   write(dir .. "/" .. name, ghostty_text)
   print(("add `theme = %s` to your ghostty config and reload the ghostty config"):format(name))
+end
+
+-- opencode ------------------------------------------------------------------
+-- https://opencode.ai/v2/docs/cli/theme : a shared token tree (`base`) plus a
+-- 9-step hue palette per mode (`dark.hue`) that the tokens reference as
+-- "$hue.<hue>.<step>". deepblue ships dark only, so a light terminal still gets
+-- these colours (opencode falls back to the single mode a theme provides).
+
+local oc = theme.opencode
+if oc then
+  -- Key order per section, so the generated JSON reads top-down like the UI
+  -- (vim.inspect/JSON sorting would scramble the token trees). Any key missing
+  -- from these lists is appended, so nothing is dropped.
+  local order = {
+    root = { "categorical", "text", "background", "border", "scrollbar", "diff", "syntax", "markdown", "@dialog" },
+    text = { "base", "muted", "faint", "action", "formfield", "feedback" },
+    action = { "primary", "secondary", "destructive" },
+    primary = { "base", "$hovered", "$focused", "$pressed", "$selected", "$disabled" },
+    secondary = { "base", "$hovered", "$focused", "$pressed", "$selected", "$disabled" },
+    destructive = { "base", "$hovered", "$focused", "$pressed", "$selected", "$disabled" },
+    formfield = { "base", "$hovered", "$focused", "$pressed", "$selected", "$disabled" },
+    feedback = { "error", "warning", "success", "info" },
+    background = { "base", "raised", "action", "formfield", "feedback" },
+    raised = { "base", "high", "max" },
+    border = { "base", "$focused" },
+    scrollbar = { "base", "$hovered" },
+    diff = { "text", "background", "highlight", "lineNumber" },
+    ["diff.text"] = { "added", "removed", "context", "hunkHeader" },
+    ["diff.background"] = { "added", "removed", "context" },
+    ["diff.highlight"] = { "added", "removed" },
+    ["diff.lineNumber"] = { "text", "background" },
+    ["diff.lineNumber.background"] = { "added", "removed" },
+    syntax = { "comment", "keyword", "function", "variable", "string", "number", "type", "operator", "punctuation" },
+    markdown = {
+      "text", "heading", "link", "linkText", "code", "blockQuote", "emphasis", "strong",
+      "horizontalRule", "listItem", "listEnumeration", "image", "imageText", "codeBlock",
+    },
+    ["@dialog"] = { "background", "text", "border", "scrollbar" },
+    hue = { "100", "200", "300", "400", "500", "600", "700", "800", "900" },
+  }
+
+  -- The shared token tree is written under `base`, so it uses the root order.
+  order.base = order.root
+
+  -- Sections whose children are hue steps, so nesting keeps the hue ordering.
+  local hue_sections = { hue = true, dark = true, light = true }
+
+  local function keys_for(ctx, t)
+    local spec = order[ctx]
+    local keys, rest = {}, {}
+    if spec then
+      for _, k in ipairs(spec) do
+        if t[k] ~= nil then table.insert(keys, k) end
+      end
+    end
+    for k in pairs(t) do
+      local known = false
+      for _, k2 in ipairs(keys) do
+        if k2 == k then known = true break end
+      end
+      if not known then table.insert(rest, tostring(k)) end
+    end
+    table.sort(rest)
+    vim.list_extend(keys, rest)
+    return keys
+  end
+
+  local encode
+  encode = function(value, ctx, pad)
+    if type(value) ~= "table" then
+      return vim.inspect(value) -- strings get quoted and escaped for us
+    end
+    if #value > 0 then -- array
+      local items = {}
+      for _, v in ipairs(value) do table.insert(items, encode(v, ctx, pad .. "  ")) end
+      return "[" .. table.concat(items, ", ") .. "]"
+    end
+    local inner, parts = pad .. "  ", {}
+    for _, k in ipairs(keys_for(ctx, value)) do
+      local child_ctx = hue_sections[ctx] and "hue"
+        or (tostring(k) == "hue" and "hue")
+        or (ctx .. "." .. tostring(k))
+      if not order[child_ctx] then child_ctx = tostring(k) end
+      table.insert(parts, ("%s%q: %s"):format(inner, tostring(k), encode(value[k], child_ctx, inner)))
+    end
+    return "{\n" .. table.concat(parts, ",\n") .. "\n" .. pad .. "}"
+  end
+
+  local json_text = encode({
+    ["$schema"] = "https://opencode.ai/theme.json",
+    base = oc.tokens,
+    dark = { hue = oc.hues },
+  }, "root", "") .. "\n"
+
+  write(root .. "/extras/opencode/" .. name .. ".json", json_text)
+
+  if install then
+    local dir = config_dir .. "/opencode/themes"
+    write(dir .. "/" .. name .. ".json", json_text)
+    print(("set `\"theme\": { \"name\": \"%s\" }` in %s/opencode/cli.json, then restart opencode")
+      :format(name, config_dir))
+  end
 end
