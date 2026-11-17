@@ -116,6 +116,12 @@ function _G.Statusline()
   if reg ~= "" then table.insert(parts, hl("StlRecording", "● rec @" .. reg .. "  ")) end
   table.insert(parts, hl("StatusLine", vim.diagnostic.status() .. " "))
   table.insert(parts, lsp_part(wide))
+  if vim.bo.filetype == "markdown" then
+    local enabled = vim.b.markdown_preview_enabled or false
+    local label = enabled and " 󰍉 Preview: ON " or " 󰍉 Preview: OFF "
+    table.insert(parts, hl(enabled and "StlAdd" or "StlMuted",
+      "%@v:lua.ToggleMarkdownPreview@" .. label .. "%T"))
+  end
   table.insert(parts, hl("StlMuted", " " .. vim.bo.filetype .. "   %l:%c "))
   return table.concat(parts)
 end

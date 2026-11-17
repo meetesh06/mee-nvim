@@ -9,6 +9,7 @@ opt.smartindent = true     -- Insert indents automatically
 opt.termguicolors = true   -- True color support
 opt.signcolumn = "yes"     -- Always show the sign column to prevent shifting text
 opt.clipboard = "unnamedplus" -- Sync with system clipboard
+opt.mouse = "a"
 opt.cursorline = true
 opt.ignorecase = true      -- Case-insensitive search...
 opt.smartcase = true       -- ...unless the pattern has a capital
