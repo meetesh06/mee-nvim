@@ -21,6 +21,7 @@ require("which-key").add({
   { "<leader>g", group = "git (diffview)" },
   { "<leader>h", group = "hunks" },
   { "<leader>u", group = "toggles" },
+  { "<leader>w", group = "windows & tabs" },
 })
 
 map("n", "<leader>?", function() require("which-key").show({ global = true }) end, { desc = "Show all keymaps" })
@@ -66,15 +67,11 @@ map("n", "<leader>fX", function() vim.cmd.edit(ignore_file()) end, { desc = "Edi
 map("n", "<leader>e", function() require("oil").toggle_float() end, { desc = "File explorer (float)" })
 map("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
 
--- Close all buffers except terminals (force, no "unsaved changes?" prompts).
--- Includes unlisted buffers too, since gitsigns diff views are created unlisted.
-map("n", "<leader>d", function()
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buftype ~= "terminal" then
-      vim.api.nvim_buf_delete(bufnr, { force = true })
-    end
-  end
-end, { desc = "Delete all buffers except terminals (force)" })
+-- Close all buffers except terminals (force, no "unsaved changes?" prompts),
+-- then show the start screen. Includes unlisted buffers too, since gitsigns
+-- diff views are created unlisted.
+map("n", "<leader>d", function() require("core.splash").close_all_and_show() end,
+  { desc = "Close all buffers, show start screen" })
 
 -- Close every buffer except the current one (and terminals)
 map("n", "<leader>D", function()
@@ -102,21 +99,39 @@ map("n", "<leader>t", function() require("core.terminal").toggle() end, { desc =
 map("t", "<Esc>", [[<C-\><C-n>]], { desc = "Escape terminal mode" })
 map("n", "<leader>T", "<cmd>tab terminal<cr><cmd>startinsert<cr>", { desc = "Terminal in a new tab" })
 
--- Tabs -------------------------------------------------------------------------
--- Alt-1..9 jump to that tab (past the end = last tab), Alt-h/l previous/next.
--- Normal mode only: fzf-lua's picker runs in a terminal and uses <A-h> itself.
--- Built-ins still work: gt/gT, g<Tab> last-used tab, <C-w>T split -> tab.
+-- Tabs & windows ---------------------------------------------------------------
+-- Switch tabs with <leader>w + arrow. (Ctrl+Tab is NOT usable here: Ghostty
+-- binds ctrl+tab / ctrl+shift+tab to its own terminal tabs, so Neovim never
+-- sees it. A leader chord is the reliable choice.) which-key lists the group.
+map("n", "<leader>w<Left>",  "<cmd>tabprevious<cr>", { desc = "Previous tab" })
+map("n", "<leader>w<Right>", "<cmd>tabnext<cr>",     { desc = "Next tab" })
+
+-- Create / close tabs and splits.
+map("n", "<leader>wn", "<cmd>tabnew<cr>", { desc = "New tab" })
+map("n", "<leader>wc", function()
+  if vim.fn.tabpagenr("$") > 1 then
+    vim.cmd("tabclose")
+  else
+    require("core.splash").close_all_and_show() -- last tab: return to the start screen
+  end
+end, { desc = "Close tab (start screen if last)" })
+map("n", "<leader>ws", "<C-w>s", { desc = "Split below" })
+map("n", "<leader>wv", "<C-w>v", { desc = "Split right" })
+map("n", "<leader>wo", "<C-w>o", { desc = "Close other windows" })
+map("n", "<leader>wq", "<C-w>c", { desc = "Close window" })
+
+-- Move focus between splits (VSCode "pane" style).
+map("n", "<leader>wh", "<C-w>h", { desc = "Focus window left" })
+map("n", "<leader>wj", "<C-w>j", { desc = "Focus window down" })
+map("n", "<leader>wk", "<C-w>k", { desc = "Focus window up" })
+map("n", "<leader>wl", "<C-w>l", { desc = "Focus window right" })
+
+-- Jump straight to tab N. Normal mode only -- fzf-lua's picker runs in a terminal.
 for i = 1, 9 do
   map("n", "<A-" .. i .. ">", function()
     vim.cmd.tabnext(math.min(i, vim.fn.tabpagenr("$")))
   end, { desc = "Go to tab " .. i })
 end
-map("n", "<A-h>", "<cmd>tabprevious<cr>", { desc = "Previous tab" })
-map("n", "<A-l>", "<cmd>tabnext<cr>", { desc = "Next tab" })
-map("n", "<A-H>", "<cmd>-tabmove<cr>", { desc = "Move tab left" })
-map("n", "<A-L>", "<cmd>+tabmove<cr>", { desc = "Move tab right" })
-map("n", "<A-n>", "<cmd>tabnew<cr>", { desc = "New tab" })
-map("n", "<A-w>", "<cmd>tabclose<cr>", { desc = "Close tab" })
 
 -- Diagnostics ----------------------------------------------------------------
 local jump = function(count, severity)
