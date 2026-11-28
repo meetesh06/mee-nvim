@@ -1,5 +1,5 @@
-# Ghostty config to pair with the deepblue Neovim theme.
-# Install with ./setup_ghostty.sh (copies this and the deepblue theme into place).
+# Ghostty config to pair with the Neon Void Neovim theme (default).
+# Install with ./setup_ghostty.sh (copies this and the bundled themes into place).
 # Reload with ctrl+shift+, (cmd+shift+, on macOS).
 
 shell-integration-features = ssh-env,ssh-terminfo
@@ -25,7 +25,7 @@ keybind = super+shift+l=resize_split:right,10
 keybind = super+shift+k=resize_split:up,10
 keybind = super+shift+j=resize_split:down,10
 
-theme = deepblue
+theme = neonvoid
 
 # Monaspace: Neon for code, Radon (handwriting style) for italics, so comments,
 # inlay hints and git blame read clearly apart from code.

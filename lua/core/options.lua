@@ -64,3 +64,23 @@ vim.diagnostic.config({
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function() vim.hl.on_yank({ timeout = 150 }) end,
 })
+
+local focus_group = vim.api.nvim_create_augroup("WindowFocus", { clear = true })
+vim.api.nvim_create_autocmd("WinLeave", {
+  group = focus_group,
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if vim.api.nvim_win_get_config(win).relative == "" then
+      vim.wo[win].cursorline = false
+    end
+  end,
+})
+vim.api.nvim_create_autocmd("WinEnter", {
+  group = focus_group,
+  callback = function()
+    local win = vim.api.nvim_get_current_win()
+    if vim.api.nvim_win_get_config(win).relative == "" then
+      vim.wo[win].cursorline = true
+    end
+  end,
+})

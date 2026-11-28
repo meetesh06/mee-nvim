@@ -206,12 +206,13 @@ local WAVE_N = 36
 local WAVE_TILT = 0.7 -- rows shift the wave sideways, so it travels diagonally
 local function wave_palette()
   local stops = {
-    fg("Title", 0xff80ff),     -- magenta
-    fg("Special", 0xffa500),   -- orange
-    fg("Statement", 0xffff60), -- yellow
-    fg("Type", 0x90f020),      -- green
-    fg("Directory", 0x5fd7d7), -- cyan
-    fg("Comment", 0x80a0ff),   -- blue
+    fg("PreProc", 0xff79c6),
+    fg("Statement", 0xbca7ff),
+    fg("Identifier", 0x73daca),
+    fg("Directory", 0x6fd7ff),
+    fg("Type", 0xb5ef72),
+    fg("Special", 0xffb86c),
+    fg("Constant", 0xff8f70),
   }
   local pal = {}
   for k = 0, WAVE_N - 1 do

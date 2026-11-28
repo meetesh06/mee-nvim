@@ -17,6 +17,7 @@
 local c = {
   -- base
   bg = "#000040", -- darkblue's navy
+  bg_inactive = "#08084b", -- slightly lighter to separate unfocused splits
   bg_dark = "#00002a", -- floats, statusline, sidebars
   bg_hl = "#0a0a5c", -- cursor line
   bg_visual = "#233a8c",
@@ -284,7 +285,7 @@ local opencode_tokens = {
 local hl = {
   -- editor
   Normal = { fg = c.fg, bg = c.bg },
-  NormalNC = { link = "Normal" },
+  NormalNC = { fg = c.fg, bg = c.bg_inactive },
   NormalFloat = { fg = c.fg, bg = c.bg_dark },
   FloatBorder = { fg = c.border, bg = c.bg_dark },
   FloatTitle = { fg = c.statement, bg = c.bg_dark, bold = true },
@@ -292,7 +293,7 @@ local hl = {
   CursorLine = { bg = c.bg_hl },
   CursorColumn = { bg = c.bg_hl },
   ColorColumn = { bg = c.bg_hl },
-  CursorLineNr = { fg = c.yellow, bold = true },
+  CursorLineNr = { fg = c.cyan, bold = true },
   LineNr = { fg = c.fg_gutter },
   -- Gutter while the buffer has unsaved changes (lua/core/statusline.lua)
   ModifiedLineNr = { fg = "#9a6420" }, -- dimmed orange
@@ -314,7 +315,7 @@ local hl = {
   MatchParen = { fg = c.yellow, bg = c.bg_visual, bold = true },
   Directory = { fg = c.directory, bold = true },
   Title = { fg = c.magenta, bold = true },
-  WinSeparator = { fg = c.border },
+  WinSeparator = { fg = c.cyan },
   VertSplit = { link = "WinSeparator" },
   StatusLine = { fg = c.fg, bg = c.bg }, -- same navy as the editor: no separate strip
   StatusLineNC = { fg = c.fg_dim, bg = c.bg_dark },

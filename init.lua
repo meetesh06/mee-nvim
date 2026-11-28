@@ -9,10 +9,8 @@ require("core.lsp")
 require("core.keymaps")
 require("core.statusline")
 
--- deepblue = darkblue with readable diffs/UI. Edit theme/deepblue.lua and run
--- `nvim -l scripts/gen-theme.lua --install` to regenerate it (plus the ghostty and
--- opencode themes).
-vim.cmd.colorscheme("deepblue")
+-- Switch between Deepblue by day and Neon Void by night (India Standard Time).
+require("core.theme").setup()
 
 -- Ask before quitting with unsaved changes. Replaces the old VimLeavePre
 -- buffer-count warning, which could never actually stop an exit.

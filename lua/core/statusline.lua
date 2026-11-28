@@ -94,36 +94,52 @@ end
 function _G.Statusline()
   local wide = vim.o.columns >= 100
   local mode, label = mode_group()
-  local gap = hl("StatusLine", "   ")
-
-  local parts = {
-    hl(mode, "▌ " .. label), gap,
-    hl("StlProject", esc(vim.fn.fnamemodify(vim.fn.getcwd(), ":t"))),
+  local project = vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+  local left = {
+    hl(mode, " " .. label .. " "),
+    hl("StlProject", "  " .. esc(project)),
   }
+
   local branch = vim.b.gitsigns_head
   if branch and branch ~= "" then
-    table.insert(parts, hl("StlBranch", "  " .. BRANCH .. " " .. esc(branch)))
+    table.insert(left, hl("StlMuted", "  │  "))
+    table.insert(left, hl("StlBranch", BRANCH .. " " .. esc(branch)))
     local s = vim.b.gitsigns_status_dict or {}
     for _, d in ipairs({ { "added", "+", "StlAdd" }, { "changed", "~", "StlChange" }, { "removed", "-", "StlDelete" } }) do
-      if (s[d[1]] or 0) > 0 then table.insert(parts, hl(d[3], " " .. d[2] .. s[d[1]])) end
+      if (s[d[1]] or 0) > 0 then table.insert(left, hl(d[3], " " .. d[2] .. s[d[1]])) end
     end
   end
 
-  if vim.bo.filetype == "splash" then return table.concat(parts) .. hl("StatusLine", "") end -- start screen
+  if vim.bo.filetype == "splash" then
+    return table.concat(left)
+  end
 
-  vim.list_extend(parts, { gap, file_part(wide), hl("StatusLine", "%=") })
+  table.insert(left, hl("StatusLine", "%="))
+  local right = {}
+  local name = vim.api.nvim_buf_get_name(0)
+  if name ~= "" then
+    name = vim.fn.fnamemodify(name, ":~:.")
+    local dir, file = name:match("^(.*/)(.-)$")
+    if not dir then dir, file = "", name end
+    table.insert(right, hl("StlDir", " " .. (wide and dir or "")))
+    table.insert(right, hl("StlFile", esc(file)))
+  end
   local reg = vim.fn.reg_recording()
-  if reg ~= "" then table.insert(parts, hl("StlRecording", "● rec @" .. reg .. "  ")) end
-  table.insert(parts, hl("StatusLine", vim.diagnostic.status() .. " "))
-  table.insert(parts, lsp_part(wide))
+  if reg ~= "" then table.insert(right, hl("StlRecording", "  ● rec @" .. reg)) end
+  local diagnostics = vim.diagnostic.status()
+  if diagnostics ~= "" then table.insert(right, hl("StlMuted", "  " .. esc(diagnostics))) end
+  local lsp_names = {}
+  for _, c in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do table.insert(lsp_names, c.name) end
+  if #lsp_names > 0 then table.insert(right, hl("StlLspOk", "  ● " .. esc(table.concat(lsp_names, ", ")))) end
   if vim.bo.filetype == "markdown" then
     local enabled = vim.b.markdown_preview_enabled or false
-    local label = enabled and " 󰍉 Preview: ON " or " 󰍉 Preview: OFF "
-    table.insert(parts, hl(enabled and "StlAdd" or "StlMuted",
-      "%@v:lua.ToggleMarkdownPreview@" .. label .. "%T"))
+    local preview = enabled and "  󰍉 Preview: ON " or "  󰍉 Preview: OFF "
+    table.insert(right, hl(enabled and "StlAdd" or "StlMuted",
+      "%@v:lua.ToggleMarkdownPreview@" .. preview .. "%T"))
   end
-  table.insert(parts, hl("StlMuted", " " .. vim.bo.filetype .. "   %l:%c "))
-  return table.concat(parts)
+  table.insert(right, hl("StlMuted", "  " .. esc(vim.bo.filetype)))
+  table.insert(right, hl("StlFile", "  " .. vim.fn.line(".") .. ":" .. vim.fn.col(".") .. " "))
+  return table.concat(left) .. table.concat(right)
 end
 
 vim.o.laststatus = 3 -- one global statusline
@@ -131,7 +147,10 @@ vim.o.showmode = false -- the coloured mode name replaces "-- INSERT --"
 vim.o.statusline = "%!v:lua.Statusline()"
 
 local group = vim.api.nvim_create_augroup("Statusline", { clear = true })
-vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = function() made = {} end })
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = group,
+  callback = function() made = {} end,
+})
 vim.api.nvim_create_autocmd({ "DiagnosticChanged", "LspAttach", "LspDetach", "ModeChanged", "RecordingEnter", "RecordingLeave" }, {
   group = group,
   callback = function() vim.schedule(function() vim.cmd.redrawstatus() end) end,

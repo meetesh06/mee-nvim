@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install the ghostty config (extras/ghostty/config) and the deepblue theme.
+# Install the Ghostty config and bundled themes.
 
 set -e
 
@@ -13,6 +13,7 @@ fi
 
 mkdir -p "$THEMES" "$(dirname "$CONF")"
 cp extras/ghostty/deepblue "$THEMES/deepblue"
+cp extras/ghostty/neonvoid "$THEMES/neonvoid"
 
 # Keep a backup of an existing config that differs from ours.
 if [ -f "$CONF" ] && ! cmp -s extras/ghostty/config "$CONF"; then
@@ -28,4 +29,4 @@ elif ! fc-list 2>/dev/null | grep -qi monaspace; then
   echo "install the Monaspace font: https://github.com/githubnext/monaspace"
 fi
 
-echo "done. Reload ghostty's config with cmd+shift+, (ctrl+shift+, on Linux)."
+echo "Neon Void is the default Ghostty theme. Reload the config with cmd+shift+, (ctrl+shift+, on Linux)."
